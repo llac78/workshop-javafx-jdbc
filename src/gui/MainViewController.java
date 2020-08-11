@@ -3,6 +3,7 @@ package gui;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.function.Consumer;
 
 import application.Main;
 import gui.util.Alerts;
@@ -35,12 +36,16 @@ public class MainViewController implements Initializable {
 	
 	@FXML
 	private void onMenuItemDepartamentoAction() {
-		carregarView2("/gui/DepartamentoLista.fxml");
+		carregarView("/gui/DepartamentoLista.fxml",
+				(DepartamentoListaController controller) -> {
+					controller.setService(new DepartamentoService());
+					controller.updateTableView();
+				});
 	}
 	
 	@FXML
 	private void onMenuItemSobreAction() {
-		carregarView("/gui/Sobre.fxml");
+		carregarView("/gui/Sobre.fxml", x -> {});
 	}
 	
 	
@@ -53,7 +58,7 @@ public class MainViewController implements Initializable {
 		
 	}
 
-	private synchronized void carregarView(String caminho) {
+	private synchronized <T> void carregarView(String caminho,  Consumer<T> inicializacaoAction) {
 		
 		try {
 			FXMLLoader loader = new FXMLLoader(getClass().getResource(caminho));
@@ -67,6 +72,8 @@ public class MainViewController implements Initializable {
 			mainVBox.getChildren().add(mainMenu);
 			mainVBox.getChildren().addAll(newVBox.getChildren());
 			
+			T controller = loader.getController();
+			inicializacaoAction.accept(controller);
 			
 		} catch (IOException e) {
 
@@ -74,28 +81,5 @@ public class MainViewController implements Initializable {
 		}
 	}
 	
-private synchronized void carregarView2(String caminho) {
-		
-		try {
-			FXMLLoader loader = new FXMLLoader(getClass().getResource(caminho));
-			VBox newVBox = loader.load();
-			
-			Scene mainScene = Main.getMainScene();
-			VBox mainVBox = (VBox) ((ScrollPane)mainScene.getRoot()).getContent();
-			
-			Node mainMenu = mainVBox.getChildren().get(0);
-			mainVBox.getChildren().clear();
-			mainVBox.getChildren().add(mainMenu);
-			mainVBox.getChildren().addAll(newVBox.getChildren());
-			
-			DepartamentoListaController controller = loader.getController();
-			controller.setService(new DepartamentoService());
-			controller.updateTableView();
-			
-			
-		} catch (IOException e) {
 
-			Alerts.mostrarAlert("IO Exception", "Erro ao carregar view", e.getMessage(), AlertType.ERROR);
-		}
-	}
 }
