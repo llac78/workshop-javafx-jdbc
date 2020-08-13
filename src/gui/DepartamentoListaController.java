@@ -85,8 +85,10 @@ public class DepartamentoListaController implements Initializable {
 			FXMLLoader loader = new FXMLLoader(getClass().getResource(caminho));
 			Pane pane = loader.load();
 			
+			//injeção de dependência
 			DepartamentoFormController controller = loader.getController();
-			controller.setEntidade(dep);
+			controller.setEntidade(dep); 
+			controller.setService(new DepartamentoService());
 			controller.updateDadosFormulario();
 			
 			Stage dialogStage = new Stage();
