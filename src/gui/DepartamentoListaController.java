@@ -9,6 +9,7 @@ import application.Main;
 import gui.listeners.MudancaDadosListener;
 import gui.util.Alerts;
 import gui.util.Utils;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -18,6 +19,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -37,6 +39,9 @@ public class DepartamentoListaController implements Initializable, MudancaDadosL
 
 	@FXML
 	private TableColumn<Departamento, String> colunaNome;
+	
+	@FXML
+	private TableColumn<Departamento, Departamento> colunaEdit;
 	
 	@FXML
 	private Button btNovo;
@@ -78,6 +83,7 @@ public class DepartamentoListaController implements Initializable, MudancaDadosL
 		List<Departamento> lista = service.listar();
 		obsLista = FXCollections.observableArrayList(lista);
 		tableViewDepartamento.setItems(obsLista);
+		initBotoesEdicao();
 	}
 	
 	private void criarDialogForm(Departamento dep, String caminho, Stage parentStage) {
@@ -109,6 +115,26 @@ public class DepartamentoListaController implements Initializable, MudancaDadosL
 	@Override
 	public void onDadosMudados() {
 		updateTableView();
+	}
+	
+	public void initBotoesEdicao() {
+		
+		colunaEdit.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue()));
+		colunaEdit.setCellFactory(param -> new TableCell<Departamento, Departamento>(){
+			
+			private final Button botao = new Button("Editar");
+			
+			@Override
+			protected void updateItem(Departamento dep, boolean vazio) {
+				super.updateItem(dep, vazio);
+				if(dep == null) {
+					setGraphic(null);
+					return;
+				}
+				setGraphic(botao);
+				botao.setOnAction(evento -> criarDialogForm(dep, "/gui/DepartamentoForm.fxml", Utils.stageAtual(evento)));
+			}
+		});
 	}
 
 }
