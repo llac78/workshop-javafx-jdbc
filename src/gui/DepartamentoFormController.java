@@ -3,7 +3,9 @@ package gui;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.Set;
 
 import db.DBException;
 import gui.listeners.MudancaDadosListener;
@@ -18,6 +20,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import model.entities.Departamento;
+import model.excpetions.ValidacaoException;
 import model.service.DepartamentoService;
 
 public class DepartamentoFormController implements Initializable {
@@ -60,7 +63,12 @@ public class DepartamentoFormController implements Initializable {
 			Utils.stageAtual(evento).close();
 			
 		} catch (DBException e) {
+			
 			Alerts.mostrarAlert("Erro ao salvar", null, e.getMessage(), AlertType.ERROR);
+		
+		} catch (ValidacaoException e) {
+	
+			setMsgErros(e.getErros());
 		}
 	}
 	
@@ -72,8 +80,19 @@ public class DepartamentoFormController implements Initializable {
 
 	private Departamento getDadosFormulario() {
 		Departamento dep = new Departamento();
+
+		ValidacaoException exception = new ValidacaoException("Erro de validação");
+		
 		dep.setId(Utils.tentarConverterParaInteiro(txtId.getText()));
+
+		if(txtNome.getText() == null || txtNome.getText().trim().equals("")) {
+			exception.addErro("nome", "Este campo é obrigatório!");
+		}
 		dep.setNome(txtNome.getText());
+		
+		if(exception.getErros().size() > 0) {
+			throw exception;
+		}
 		
 		return dep;
 	}
@@ -114,5 +133,12 @@ public class DepartamentoFormController implements Initializable {
 		txtId.setText(String.valueOf(entidade.getId()));
 		txtNome.setText(entidade.getNome());
 	}
-
+	
+	private void setMsgErros(Map<String,String> erros) {
+		Set<String> campos = erros.keySet();
+	
+		if(campos.contains("nome")) {
+			labelErroNome.setText(erros.get("nome"));
+		}
+	}
 }
