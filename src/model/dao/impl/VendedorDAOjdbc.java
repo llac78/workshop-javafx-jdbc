@@ -189,10 +189,8 @@ public class VendedorDAOjdbc implements VendedorDAO {
 				Vendedor vend = instanciarVendedor(rs, depart);
 				lista.add(vend);
 				
-				return lista;
 			}
-			
-			return null;
+			return lista;
 			
 		} catch (SQLException e) {
 			throw new DBException(e.getMessage());

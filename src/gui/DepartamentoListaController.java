@@ -56,8 +56,8 @@ public class DepartamentoListaController implements Initializable, MudancaDadosL
 	@FXML
 	public void onBtNovoAction(ActionEvent evento) {
 		Stage parent = Utils.stageAtual(evento);
-		Departamento dep = new Departamento();
-		criarDialogForm(dep, "/gui/DepartamentoForm.fxml", parent);
+		Departamento departamento = new Departamento();
+		criarDialogForm(departamento, "/gui/DepartamentoForm.fxml", parent);
 	}
 	
 	private ObservableList<Departamento> obsLista;
@@ -94,15 +94,14 @@ public class DepartamentoListaController implements Initializable, MudancaDadosL
 		initBotoesRemover();
 	}
 	
-	private void criarDialogForm(Departamento dep, String caminho, Stage parentStage) {
-		
+	private void criarDialogForm(Departamento departamento, String caminho, Stage parentStage) {
 		try {
 			FXMLLoader loader = new FXMLLoader(getClass().getResource(caminho));
 			Pane pane = loader.load();
 			
-			//injeção de dependência
+			//injeção de departamentoendência
 			DepartamentoFormController controller = loader.getController();
-			controller.setEntidade(dep); 
+			controller.setEntidade(departamento); 
 			controller.setService(new DepartamentoService());
 			controller.adicionarMudancaDadosListener(this);
 			controller.updateDadosFormulario();
@@ -133,14 +132,14 @@ public class DepartamentoListaController implements Initializable, MudancaDadosL
 			private final Button botao = new Button("Editar");
 			
 			@Override
-			protected void updateItem(Departamento dep, boolean vazio) {
-				super.updateItem(dep, vazio);
-				if(dep == null) {
+			protected void updateItem(Departamento departamento, boolean vazio) {
+				super.updateItem(departamento, vazio);
+				if(departamento == null) {
 					setGraphic(null);
 					return;
 				}
 				setGraphic(botao);
-				botao.setOnAction(evento -> criarDialogForm(dep, "/gui/DepartamentoForm.fxml", Utils.stageAtual(evento)));
+				botao.setOnAction(evento -> criarDialogForm(departamento, "/gui/DepartamentoForm.fxml", Utils.stageAtual(evento)));
 			}
 		});
 	}
@@ -153,19 +152,19 @@ public class DepartamentoListaController implements Initializable, MudancaDadosL
 			private final Button botao = new Button("Remover");
 			
 			@Override
-			protected void updateItem(Departamento dep, boolean vazio) {
-				super.updateItem(dep, vazio);
-				if(dep == null) {
+			protected void updateItem(Departamento departamento, boolean vazio) {
+				super.updateItem(departamento, vazio);
+				if(departamento == null) {
 					setGraphic(null);
 					return;
 				}
 				setGraphic(botao);
-				botao.setOnAction(evento -> removerEntidade(dep));
+				botao.setOnAction(evento -> removerEntidade(departamento));
 			}
 		});
 	}
 
-	private void removerEntidade(Departamento dep) {
+	private void removerEntidade(Departamento departamento) {
 
 		Optional<ButtonType> resultado = Alerts.mostrarConfirmacao("Confirmar", "Deseja realmente deletar este registro?");
 		
@@ -174,7 +173,7 @@ public class DepartamentoListaController implements Initializable, MudancaDadosL
 				throw new IllegalStateException("Service nulo!");
 			}
 			try {
-				service.remover(dep);
+				service.remover(departamento);
 				updateTableView();
 			} catch (DBIntegridadeException e) {
 				Alerts.mostrarAlert("Erro ao remover", null, e.getMessage(), AlertType.ERROR);
