@@ -146,8 +146,8 @@ public class VendedorDAOjdbc implements VendedorDAO {
 		vend.setId(rs.getInt("Id"));
 		vend.setNome(rs.getString("Name"));
 		vend.setEmail(rs.getString("Email"));
-		vend.setDataNascimento(rs.getDate("BirthDate"));
 		vend.setSalario(rs.getDouble("BaseSalary"));
+		vend.setDataNascimento(new java.util.Date(rs.getTimestamp("BirthDate").getTime()));
 		vend.setDepartamento(dep);
 		
 		return vend;

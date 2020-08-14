@@ -1,6 +1,8 @@
 package gui;
 
 import java.net.URL;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +19,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import model.entities.Vendedor;
@@ -38,7 +41,25 @@ public class VendedorFormController implements Initializable {
 	private TextField txtNome;
 	
 	@FXML
+	private TextField txtEmail;
+
+	@FXML
+	private DatePicker dpDataNascimento;
+
+	@FXML
+	private TextField txtSalario;
+
+	@FXML
 	private Label labelErroNome;
+	
+	@FXML
+	private Label labelErroEmail;
+	
+	@FXML
+	private Label labelErroDataNascimento;
+	
+	@FXML
+	private Label labelErroSalario;
 	
 	@FXML
 	private Button btSalvar;
@@ -123,7 +144,10 @@ public class VendedorFormController implements Initializable {
 	
 	private void inicializarNodes() {
 		Constraints.setTextFieldInteger(txtId);
-		Constraints.setTextFieldMaxLength(txtNome, 10);
+		Constraints.setTextFieldMaxLength(txtNome, 20);
+		Constraints.setTextFieldDouble(txtSalario);
+		Constraints.setTextFieldMaxLength(txtEmail, 20);
+		Utils.formatDatePicker(dpDataNascimento, "dd/MM/yyyy");
 	}
 	
 	public void updateDadosFormulario() {
@@ -132,6 +156,11 @@ public class VendedorFormController implements Initializable {
 		}
 		txtId.setText(String.valueOf(entidade.getId()));
 		txtNome.setText(entidade.getNome());
+		txtEmail.setText(entidade.getEmail());
+		txtSalario.setText(String.format("%.2f", entidade.getSalario()));
+		if(entidade.getDataNascimento() != null) {
+			dpDataNascimento.setValue(LocalDate.ofInstant(entidade.getDataNascimento().toInstant(), ZoneId.systemDefault()));
+		}
 	}
 	
 	private void setMsgErros(Map<String,String> erros) {
