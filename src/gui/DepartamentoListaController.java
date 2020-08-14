@@ -99,7 +99,7 @@ public class DepartamentoListaController implements Initializable, MudancaDadosL
 			FXMLLoader loader = new FXMLLoader(getClass().getResource(caminho));
 			Pane pane = loader.load();
 			
-			//injeção de departamentoendência
+			//injeção de deoendência
 			DepartamentoFormController controller = loader.getController();
 			controller.setEntidade(departamento); 
 			controller.setService(new DepartamentoService());
