@@ -3,9 +3,11 @@ package gui;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 import application.Main;
+import db.DBIntegridadeException;
 import gui.listeners.MudancaDadosListener;
 import gui.util.Alerts;
 import gui.util.Utils;
@@ -19,6 +21,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -42,6 +45,10 @@ public class DepartamentoListaController implements Initializable, MudancaDadosL
 	
 	@FXML
 	private TableColumn<Departamento, Departamento> colunaEdit;
+	
+	@FXML
+	private TableColumn<Departamento, Departamento> colunaRemover;
+
 	
 	@FXML
 	private Button btNovo;
@@ -84,6 +91,7 @@ public class DepartamentoListaController implements Initializable, MudancaDadosL
 		obsLista = FXCollections.observableArrayList(lista);
 		tableViewDepartamento.setItems(obsLista);
 		initBotoesEdicao();
+		initBotoesRemover();
 	}
 	
 	private void criarDialogForm(Departamento dep, String caminho, Stage parentStage) {
@@ -136,5 +144,44 @@ public class DepartamentoListaController implements Initializable, MudancaDadosL
 			}
 		});
 	}
+	
+	public void initBotoesRemover() {
+		
+		colunaRemover.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue()));
+		colunaRemover.setCellFactory(param -> new TableCell<Departamento, Departamento>(){
+			
+			private final Button botao = new Button("Remover");
+			
+			@Override
+			protected void updateItem(Departamento dep, boolean vazio) {
+				super.updateItem(dep, vazio);
+				if(dep == null) {
+					setGraphic(null);
+					return;
+				}
+				setGraphic(botao);
+				botao.setOnAction(evento -> removerEntidade(dep));
+			}
+		});
+	}
+
+	private void removerEntidade(Departamento dep) {
+
+		Optional<ButtonType> resultado = Alerts.mostrarConfirmacao("Confirmar", "Deseja realmente deletar este registro?");
+		
+		if(resultado.get() == ButtonType.OK) {
+			if(service == null) {
+				throw new IllegalStateException("Service nulo!");
+			}
+			try {
+				service.remover(dep);
+				updateTableView();
+			} catch (DBIntegridadeException e) {
+				Alerts.mostrarAlert("Erro ao remover", null, e.getMessage(), AlertType.ERROR);
+			}
+			
+		}
+	}
+
 
 }
