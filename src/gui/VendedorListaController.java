@@ -1,6 +1,7 @@
 package gui;
 
 import java.net.URL;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -39,6 +40,16 @@ public class VendedorListaController implements Initializable, MudancaDadosListe
 	private TableColumn<Vendedor, String> colunaNome;
 	
 	@FXML
+	private TableColumn<Vendedor, String> colunaEmail;
+
+	@FXML
+	private TableColumn<Vendedor, Date> colunaDataNascimento;
+
+	@FXML
+	private TableColumn<Vendedor, Double> colunaSalario;
+
+	
+	@FXML
 	private TableColumn<Vendedor, Vendedor> colunaEdit;
 	
 	@FXML
@@ -65,7 +76,6 @@ public class VendedorListaController implements Initializable, MudancaDadosListe
 
 	@Override
 	public void initialize(URL url, ResourceBundle rb) {
-
 		inicializarNodes();
 	}
 
@@ -73,6 +83,11 @@ public class VendedorListaController implements Initializable, MudancaDadosListe
 
 		colunaId.setCellValueFactory(new PropertyValueFactory<>("id"));
 		colunaNome.setCellValueFactory(new PropertyValueFactory<>("nome"));
+		colunaEmail.setCellValueFactory(new PropertyValueFactory<>("email"));
+		colunaDataNascimento.setCellValueFactory(new PropertyValueFactory<>("dataNascimento"));
+		Utils.formatarColunaDate(colunaDataNascimento, "dd/MM/yyyy");
+		colunaSalario.setCellValueFactory(new PropertyValueFactory<>("salario"));
+		Utils.formatarColunaDouble(colunaSalario, 2);
 		
 		Stage stage = (Stage) Main.getMainScene().getWindow();
 		tableViewVendedor.prefHeightProperty().bind(stage.heightProperty());
