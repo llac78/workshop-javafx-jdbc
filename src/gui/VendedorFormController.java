@@ -14,16 +14,24 @@ import gui.listeners.MudancaDadosListener;
 import gui.util.Alerts;
 import gui.util.Constraints;
 import gui.util.Utils;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
+import javafx.util.Callback;
+import model.entities.Departamento;
 import model.entities.Vendedor;
 import model.excpetions.ValidacaoException;
+import model.service.DepartamentoService;
 import model.service.VendedorService;
 
 public class VendedorFormController implements Initializable {
@@ -31,6 +39,8 @@ public class VendedorFormController implements Initializable {
 	private Vendedor entidade;
 	
 	private VendedorService service;
+	
+	private DepartamentoService depService;
 	
 	private List<MudancaDadosListener> mdListeners = new ArrayList<>();
 	
@@ -50,6 +60,9 @@ public class VendedorFormController implements Initializable {
 	private TextField txtSalario;
 
 	@FXML
+	private ComboBox<Departamento> cbDepartamento;
+
+	@FXML
 	private Label labelErroNome;
 	
 	@FXML
@@ -66,6 +79,8 @@ public class VendedorFormController implements Initializable {
 
 	@FXML
 	private Button btCancelar;
+	
+	private ObservableList<Departamento> obsLista;
 	
 	@FXML
 	public void onBtSalvarAction(ActionEvent evento){
@@ -129,10 +144,11 @@ public class VendedorFormController implements Initializable {
 	}
 	
 	//injeção de dependência
-	public void setService(VendedorService service) {
+	public void setServices(VendedorService service, DepartamentoService depService) {
 		this.service = service;
+		this.depService = depService;
 	}
-	
+
 	public void adicionarMudancaDadosListener(MudancaDadosListener listener) {
 		mdListeners.add(listener);
 	}
@@ -148,6 +164,7 @@ public class VendedorFormController implements Initializable {
 		Constraints.setTextFieldDouble(txtSalario);
 		Constraints.setTextFieldMaxLength(txtEmail, 20);
 		Utils.formatDatePicker(dpDataNascimento, "dd/MM/yyyy");
+		inicializarComboBoxDepartamento();
 	}
 	
 	public void updateDadosFormulario() {
@@ -161,6 +178,11 @@ public class VendedorFormController implements Initializable {
 		if(entidade.getDataNascimento() != null) {
 			dpDataNascimento.setValue(LocalDate.ofInstant(entidade.getDataNascimento().toInstant(), ZoneId.systemDefault()));
 		}
+		if(entidade.getDepartamento() == null) {
+			cbDepartamento.getSelectionModel().selectFirst();
+		} else {
+			cbDepartamento.setValue(entidade.getDepartamento());
+		}
 	}
 	
 	private void setMsgErros(Map<String,String> erros) {
@@ -169,5 +191,26 @@ public class VendedorFormController implements Initializable {
 		if(campos.contains("nome")) {
 			labelErroNome.setText(erros.get("nome"));
 		}
+	}
+	
+	private void inicializarComboBoxDepartamento() {
+		Callback<ListView<Departamento>, ListCell<Departamento>> factory = lv -> new ListCell<Departamento>() {
+			@Override
+			protected void updateItem(Departamento item, boolean vazio) {
+				super.updateItem(item, vazio);
+				setText(vazio ? "" : item.getNome());
+			}
+		};
+		cbDepartamento.setCellFactory(factory);
+		cbDepartamento.setButtonCell(factory.call(null));
+	}
+	
+	public void carregarObjetosAssociados() {
+		if(depService == null) {
+			throw new IllegalStateException("DepService nulo!");
+		}
+		List<Departamento> lista = depService.listar();
+		obsLista = FXCollections.observableArrayList(lista);
+		cbDepartamento.setItems(obsLista);
 	}
 }

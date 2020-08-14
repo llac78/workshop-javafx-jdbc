@@ -115,6 +115,7 @@ public class DepartamentoListaController implements Initializable, MudancaDadosL
 			dialogStage.showAndWait();
 			
 		} catch (IOException e) {
+			e.printStackTrace();
 			Alerts.mostrarAlert("IO Exception", "Erro ao carregar tela", e.getMessage(), AlertType.ERROR);
 		}
 	}
